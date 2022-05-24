@@ -37,7 +37,7 @@ train_set, validation_set = np.split(dataset, [int(SAMPLES*CLASS*0.9)], axis=0)
 '''
 4. Neural Network implementation using sigmoid fcn 
    as nonlinear mapping and train weights with SGD
-   I.   Imput 
+   I.   Input(1470*2) 
    II.  Hidden layer
    III. Output layer
 '''
@@ -49,5 +49,6 @@ train_set, validation_set = np.split(dataset, [int(SAMPLES*CLASS*0.9)], axis=0)
 References:
 1. https://towardsdatascience.com/dimensionality-reduction-of-a-color-photo-splitting-into-rgb-channels-using-pca-algorithm-in-python-ba01580a1118
 2. https://towardsdatascience.com/pca-using-python-scikit-learn-e653f8989e60
+3. https://ljvmiranda921.github.io/notebook/2017/02/17/artificial-neural-networks/
 
 '''
