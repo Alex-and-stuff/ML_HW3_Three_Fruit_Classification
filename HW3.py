@@ -40,6 +40,19 @@ test_set  = np.concatenate((test_reduc, test_label), axis=1)
 # Shuffle the dataset
 np.random.shuffle(train_set)  # [1470,3]
 np.random.shuffle(test_set)   # [495, 3]
+# Separate data from label
+train_label = train_set[:,-1]
+train_set   = train_set[:,:-1]
+test_label  = test_set[:,-1]
+test_set    = test_set[:,:-1]
+# Normalize the dataset
+train_max = np.amax(train_set)
+train_min = np.amin(train_set)
+test_max  = np.amax(test_set)
+test_min  = np.amin(test_set)
+train_set = (train_set-train_min)/(train_max-train_min)
+test_set  = (test_set-test_min)/(test_max-test_min)
+
 
 '''
 4. Neural Network implementation using sigmoid fcn 
