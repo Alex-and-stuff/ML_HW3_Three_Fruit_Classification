@@ -1,6 +1,8 @@
-from numpy import who
-from functions import *
+# from functions import *
+from functions_batch import *
 from sklearn.decomposition import PCA
+
+
 '''
 1. Import train data, test data
 '''
@@ -38,8 +40,8 @@ test_reduc  = pca.fit_transform(test_data.reshape(TESTSAMP*CLASS,DIM*DIM*DEPTH))
 train_set = np.concatenate((train_reduc, train_label), axis=1)
 test_set  = np.concatenate((test_reduc, test_label), axis=1)
 # Shuffle the dataset
-np.random.shuffle(train_set)  # [1470,3]
-np.random.shuffle(test_set)   # [495, 3]
+# np.random.shuffle(train_set)  # [1470,3]
+# np.random.shuffle(test_set)   # [495, 3]
 # Separate data from label
 train_label = train_set[:,-1]
 train_set   = train_set[:,:-1]
@@ -53,7 +55,37 @@ test_min  = np.amin(test_set)
 train_set = (train_set-train_min)/(train_max-train_min)
 test_set  = (test_set-test_min)/(test_max-test_min)
 
+train_label_o = train_label
+test_label_o  = test_label
+train_label = toOneHot(train_label, 3)
+test_label  = toOneHot(test_label, 3)
 
+
+'''
+4. Build neural network
+'''
+batch_size = 2
+net = network()
+net.addLayer(FClayer(2,10,batch_size))
+net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
+net.addLayer(FClayer(10,3,batch_size))
+net.addLayer(SoftmaxLayer(3,3))
+# net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
+# net.addLayer(FClayer(3,3,batch_size))
+# net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
+
+net.lossFcn(cross_entropy, cross_entropy_prime)
+net.fit(train_set, train_label, 100, batch_size, 0.1)
+net.predict(test_set, test_label)
+
+# net.lossFcn(mse, mse_prime)
+# net.fit(train_set, train_label_o, 10, batch_size, 0.3)
+# net.predictMSE(test_set, test_label)
+
+net.plot_training_curve()
+net.plotTrainData(train_set, train_label)
+net.plotTrainData(test_set, test_label)
+plt.show()
 '''
 4. Neural Network implementation using sigmoid fcn 
    as nonlinear mapping and train weights with SGD
@@ -70,5 +102,6 @@ References:
 1. https://towardsdatascience.com/dimensionality-reduction-of-a-color-photo-splitting-into-rgb-channels-using-pca-algorithm-in-python-ba01580a1118
 2. https://towardsdatascience.com/pca-using-python-scikit-learn-e653f8989e60
 3. https://ljvmiranda921.github.io/notebook/2017/02/17/artificial-neural-networks/
+4. https://www.youtube.com/watch?v=4qJaSmvhxi8&ab_channel=DeepLearningAI
 
 '''
