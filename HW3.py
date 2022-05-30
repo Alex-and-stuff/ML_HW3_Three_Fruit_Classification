@@ -31,8 +31,12 @@ for idx, fruit in enumerate(fruits):
 2. PCA dimentional reduction to 2-dim
 '''
 pca = PCA(n_components=2)
-train_reduc = pca.fit_transform(train_data.reshape(TRAINSAMP*CLASS,DIM*DIM*DEPTH))
-test_reduc  = pca.fit_transform(test_data.reshape(TESTSAMP*CLASS,DIM*DIM*DEPTH))
+
+# Do PCA separately
+pca.fit(train_data.reshape(TRAINSAMP*CLASS,DIM*DIM*DEPTH))
+
+train_reduc = pca.transform(train_data.reshape(TRAINSAMP*CLASS,DIM*DIM*DEPTH))
+test_reduc  = pca.transform(test_data.reshape(TESTSAMP*CLASS,DIM*DIM*DEPTH))
 '''
 3. Divide data to train and validation set
 '''
@@ -40,8 +44,8 @@ test_reduc  = pca.fit_transform(test_data.reshape(TESTSAMP*CLASS,DIM*DIM*DEPTH))
 train_set = np.concatenate((train_reduc, train_label), axis=1)
 test_set  = np.concatenate((test_reduc, test_label), axis=1)
 # Shuffle the dataset
-# np.random.shuffle(train_set)  # [1470,3]
-# np.random.shuffle(test_set)   # [495, 3]
+np.random.shuffle(train_set)  # [1470,3]
+np.random.shuffle(test_set)   # [495, 3]
 # Separate data from label
 train_label = train_set[:,-1]
 train_set   = train_set[:,:-1]
@@ -64,18 +68,20 @@ test_label  = toOneHot(test_label, 3)
 '''
 4. Build neural network
 '''
-batch_size = 2
+batch_size = 5
 net = network()
-net.addLayer(FClayer(2,10,batch_size))
+net.addLayer(FClayer(2,8,batch_size))
 net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
-net.addLayer(FClayer(10,3,batch_size))
+net.addLayer(FClayer(8,3,batch_size))
+# net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
+# net.addLayer(FClayer(4,3,batch_size))
 net.addLayer(SoftmaxLayer(3,3))
 # net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
 # net.addLayer(FClayer(3,3,batch_size))
 # net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
 
 net.lossFcn(cross_entropy, cross_entropy_prime)
-net.fit(train_set, train_label, 100, batch_size, 0.1)
+net.fit(train_set, train_label, 100, batch_size, 0.04)
 net.predict(test_set, test_label)
 
 # net.lossFcn(mse, mse_prime)

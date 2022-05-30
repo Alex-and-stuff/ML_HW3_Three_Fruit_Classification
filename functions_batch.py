@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-TESTSAMP = 165
+TESTSAMP  = 166
 TRAINSAMP = 490
 CLASS     = 3 
 DIM       = 32
