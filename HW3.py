@@ -59,10 +59,15 @@ test_min  = np.amin(test_set)
 train_set = (train_set-train_min)/(train_max-train_min)
 test_set  = (test_set-test_min)/(test_max-test_min)
 
-train_label_o = train_label
-test_label_o  = test_label
+train_label_o = train_label.reshape((len(train_label),1))
+test_label_o  = test_label.reshape((len(test_label),1))
 train_label = toOneHot(train_label, 3)
 test_label  = toOneHot(test_label, 3)
+
+all_set = np.concatenate((train_set, test_set), axis=0)
+all_label = np.concatenate((train_label_o, test_label_o), axis=0)
+
+# print(test_label_o, test_label_o.shape, test_label.shape)
 
 
 '''
@@ -81,8 +86,10 @@ net.addLayer(SoftmaxLayer(3,3))
 # net.addLayer(ActivationLayer(sigmoid, sigmoid_prime))
 
 net.lossFcn(cross_entropy, cross_entropy_prime)
-net.fit(train_set, train_label, 100, batch_size, 0.04)
-net.predict(test_set, test_label)
+net.fit(train_set, train_label, 300, batch_size, 0.04)
+prediction = net.predict(test_set)
+net.calculateAccuracy(prediction, test_label_o)
+
 
 # net.lossFcn(mse, mse_prime)
 # net.fit(train_set, train_label_o, 10, batch_size, 0.3)
@@ -91,6 +98,8 @@ net.predict(test_set, test_label)
 net.plot_training_curve()
 net.plotTrainData(train_set, train_label)
 net.plotTrainData(test_set, test_label)
+# net.drawDecisionRegion(all_set, test_set, test_label_o)
+net.drawDecisionRegion(all_set, test_set, all_label)
 plt.show()
 '''
 4. Neural Network implementation using sigmoid fcn 

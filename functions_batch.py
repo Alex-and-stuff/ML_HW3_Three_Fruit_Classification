@@ -244,7 +244,7 @@ class network:
     #             correct += 1
     #     print("accuracy: ", correct/samples)
         
-    def predict(self, test_data, test_label):
+    def predictOneHot(self, test_data):
         samples, _ = test_data.shape
         prediction = np.zeros((samples, 3))
         for sample in range(samples):
@@ -259,13 +259,29 @@ class network:
             prediction[sample, pos[0]] = 1
             # print('pred', prediction[sample])
         print('pre  ',prediction)
-        print('label', test_label)
 
+        return prediction
+
+    def calculateAccuracy(self, prediction, label):
         correct = 0
+        samples, _ = label.shape
         for sample in range(samples):
-            if np.array_equal(prediction[sample],test_label[sample]):
+            if np.array_equal(prediction[sample],label[sample]):
                 correct += 1
         print("accuracy: ", correct/samples)
+
+    def predict(self, test_data):
+        samples, _ = test_data.shape
+        prediction = np.zeros((samples, 1))
+        for sample in range(samples):
+            input = test_data[sample]
+            for layer in self.layers:
+                input = layer.forwardPropagation(input)
+            input = np.expand_dims(softmax(input), axis=0)
+            pos = np.argmax(input, axis=1)
+            prediction[sample, 0] = pos
+
+        return prediction
 
     def plot_training_curve(self):
         epoch, loss = [],[]
@@ -297,6 +313,49 @@ class network:
         plt.scatter(f1x, f1y, c='red')
         plt.scatter(f2x, f2y, c='green')
         plt.scatter(f3x, f3y, c='blue')
+
+    def drawDecisionRegion(self, all_data, test_data, test_label):
+        '''
+        1. Define a grid of points across the feature space
+            - find min/max across feature space to deine the boundary
+            - create uniform spacing (resolution) across the space w/ "arange()" 
+            - turn it into a gid w/ "meshgrid()"
+            - each pixel is collected as test data to be inputed to the model
+        2. Fit each pixel and predict the output class
+        3. Plot the grid of values to a contour plot
+        4. place the actual test data on top to see if our model predicts well
+        '''
+        SPACING = 0.1
+        RESOLUTION = 0.1
+        f1_min, f1_max = all_data[:,0].min()-SPACING, all_data[:,0].max()+SPACING
+        f2_min, f2_max = all_data[:,1].min()-SPACING, all_data[:,1].max()+SPACING
+
+        f1_grid = np.arange(f1_min, f1_max, RESOLUTION)
+        f2_grid = np.arange(f2_min, f2_max, RESOLUTION)
+
+        gx, gy  = np.meshgrid(f1_grid, f2_grid)
+
+        flat_f1, flat_f2 = gx.flatten(), gy.flatten()
+        flat_f1, flat_f2 = flat_f1.reshape((len(flat_f1),1)), flat_f2.reshape((len(flat_f2),1))
+
+        grid_data = np.concatenate((flat_f1, flat_f2), axis=1)
+
+        prediction = self.predict(grid_data)
+
+        gz = prediction.reshape(gx.shape)
+
+        plt.figure()
+        plt.contourf(gx, gy, gz, cmap='Paired')
+
+        for class_val in range(CLASS):
+            row_idx = np.where(test_label == class_val)
+            # plt.scatter(test_data[row_idx, 0], test_data[row_idx, 1], cmap='Paired')
+            plt.scatter(all_data[row_idx, 0], all_data[row_idx, 1], cmap='Paired')
+
+
+
+
+
 
 
 
